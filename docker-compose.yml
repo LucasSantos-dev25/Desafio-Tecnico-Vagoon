@@ -2,27 +2,29 @@ services:
   db:
     image: mysql:8.0
     restart: always
-    env_file:
-      - ./backend/.env
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
       MYSQL_DATABASE: ${DB_NAME}
     ports:
-      - "3306:3306"
+      - "${DB_EXTERNAL_PORT}:${DB_PORT}"
     volumes:
       - db_data:/var/lib/mysql
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+    
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-p$$MYSQL_ROOT_PASSWORD"]
       interval: 5s
       retries: 10
+      start_period: 30s
 
   backend:
     build: ./backend
     restart: always
     env_file:
-      - ./backend/.env
+      - .env
+    environment:
+      PORT: ${BACKEND_PORT}
     ports:
-      - "3001:3001"
+      - "${BACKEND_PORT}:${BACKEND_PORT}"
     depends_on:
       db:
         condition: service_healthy
@@ -34,10 +36,10 @@ services:
     build:
       context: ./frontend
       args:
-        VITE_API_URL: http://localhost:3001/api
+        VITE_API_URL: ${VITE_API_URL}
     restart: always
     ports:
-      - "5173:5173"
+      - "${FRONTEND_PORT}:${FRONTEND_PORT}"
     depends_on:
       - backend
     volumes:

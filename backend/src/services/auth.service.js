@@ -9,25 +9,34 @@ function generateToken(id) {
   });
 }
 
-export async function register({ login, senha }) {
-  const exists = await User.findOne({ where: { login } });
+function toAuthResponse(user) {
+  return {
+    id: user.id,
+    nome: user.nome,
+    email: user.email,
+    token: generateToken(user.id),
+  };
+}
+
+export async function register({ nome, email, senha }) {
+  const exists = await User.findOne({ where: { email } });
   if (exists) {
-    const error = new Error('Login já está em uso');
+    const error = new Error('E-mail já está em uso');
     error.status = 409;
     throw error;
   }
 
-  const user = await User.create({ login, senha });
-  return { id: user.id, login: user.login, token: generateToken(user.id) };
+  const user = await User.create({ nome, email, senha });
+  return toAuthResponse(user);
 }
 
-export async function login({ login, senha }) {
-  const user = await User.findOne({ where: { login } });
+export async function login({ email, senha }) {
+  const user = await User.findOne({ where: { email } });
   if (!user || !(await user.checkPassword(senha))) {
-    const error = new Error('Login ou senha inválidos');
+    const error = new Error('E-mail ou senha inválidos');
     error.status = 401;
     throw error;
   }
 
-  return { id: user.id, login: user.login, token: generateToken(user.id) };
+  return toAuthResponse(user);
 }

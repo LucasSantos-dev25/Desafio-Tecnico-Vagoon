@@ -3,13 +3,12 @@ import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
 
 const statusColors = {
-  pendente: '#f0ad4e',
-  concluida: '#5cb85c',
-  cancelada: '#d9534f',
+  pendente: '#f59e0b',
+  concluida: '#10b981',
+  cancelada: '#f87171',
 };
 
 export default function ActivityCalendar({ activities, onEventClick, onDateClick }) {
-  // transforma o formato da sua API no formato que o FullCalendar espera
   const events = activities.map((activity) => ({
     id: String(activity.id),
     title: activity.nome,

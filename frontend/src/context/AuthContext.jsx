@@ -1,33 +1,31 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { useState } from 'react';
 import api from '../api/axios';
+import { AuthContext } from './auth-context';
 
-const AuthContext = createContext(null);
+function getStoredUser() {
+  const token = localStorage.getItem('token');
+  const savedUser = localStorage.getItem('user');
+  return token && savedUser ? JSON.parse(savedUser) : null;
+}
+
+function persistSession(data) {
+  const user = { id: data.id, nome: data.nome, email: data.email };
+  localStorage.setItem('token', data.token);
+  localStorage.setItem('user', JSON.stringify(user));
+  return user;
+}
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState(getStoredUser);
 
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    const savedUser = localStorage.getItem('user');
-    if (token && savedUser) {
-      setUser(JSON.parse(savedUser));
-    }
-    setLoading(false);
-  }, []);
-
-  async function login(login, senha) {
-    const { data } = await api.post('/auth/login', { login, senha });
-    localStorage.setItem('token', data.token);
-    localStorage.setItem('user', JSON.stringify({ id: data.id, login: data.login }));
-    setUser({ id: data.id, login: data.login });
+  async function login(email, senha) {
+    const { data } = await api.post('/auth/login', { email, senha });
+    setUser(persistSession(data));
   }
 
-  async function register(login, senha) {
-    const { data } = await api.post('/auth/register', { login, senha });
-    localStorage.setItem('token', data.token);
-    localStorage.setItem('user', JSON.stringify({ id: data.id, login: data.login }));
-    setUser({ id: data.id, login: data.login });
+  async function register(nome, email, senha) {
+    const { data } = await api.post('/auth/register', { nome, email, senha });
+    setUser(persistSession(data));
   }
 
   function logout() {
@@ -37,12 +35,8 @@ export function AuthProvider({ children }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout }}>
+    <AuthContext.Provider value={{ user, login, register, logout }}>
       {children}
     </AuthContext.Provider>
   );
-}
-
-export function useAuth() {
-  return useContext(AuthContext);
 }

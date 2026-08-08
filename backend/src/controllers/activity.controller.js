@@ -18,6 +18,15 @@ export async function list(req, res, next) {
   }
 }
 
+export async function show(req, res, next) {
+  try {
+    const activity = await activityService.findById(req.params.id, req.userId);
+    res.json(activity);
+  } catch (err) {
+    next(err);
+  }
+}
+
 export async function update(req, res, next) {
   try {
     const activity = await activityService.update(req.params.id, req.body, req.userId);
