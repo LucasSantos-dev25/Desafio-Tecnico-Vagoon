@@ -1,6 +1,12 @@
 {
-  "dependencies": {
-    "@tailwindcss/vite": "^4.3.3",
-    "tailwindcss": "^4.3.3"
+  "name": "sync-day",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Monorepo do sync-day: frontend (React + Tailwind) e backend (Express + Sequelize + MySQL)",
+  "scripts": {
+    "dev:backend": "npm --prefix backend run dev",
+    "dev:frontend": "npm --prefix frontend run dev",
+    "docker:up": "docker compose up --build",
+    "docker:down": "docker compose down"
   }
 }
