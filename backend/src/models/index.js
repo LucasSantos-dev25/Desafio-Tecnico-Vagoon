@@ -7,7 +7,8 @@ import dbConfig from '../config/database.cjs';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const config = dbConfig.development;
+const env = process.env.NODE_ENV || 'development';
+const config = dbConfig[env] || dbConfig.development;
 
 const sequelize = new Sequelize(
   config.database,
