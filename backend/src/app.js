@@ -9,7 +9,23 @@ const app = express();
 
 app.use(helmet());
 app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
-app.use(cors({ origin: process.env.FRONTEND_URL }));
+const allowedOrigins = (process.env.FRONTEND_URL || '')
+  .split(',')
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+
+const isLocalOrigin = (origin) =>
+  /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
+
+app.use(cors({
+  origin: (origin, callback) => {
+    const isDev = process.env.NODE_ENV !== 'production';
+    if (!origin || allowedOrigins.includes(origin) || (isDev && isLocalOrigin(origin))) {
+      return callback(null, true);
+    }
+    return callback(new Error('Origem não permitida pelo CORS'));
+  },
+}));
 app.use(express.json());
 
 app.use('/api', routes);
