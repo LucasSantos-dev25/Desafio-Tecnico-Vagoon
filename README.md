@@ -87,6 +87,23 @@ npm run dev
 5. Clique em um dia vazio do calendário para criar uma atividade já com a data preenchida
 6. Use **Sair** e entre novamente pela tela **Entrar** (e-mail e senha)
 
+## Deploy (produção)
+
+Arquitetura recomendada (gratuita):
+
+- **Frontend** → Vercel (`frontend/vercel.json` já configurado com rewrite de SPA)
+- **Backend** → Render (`render.yaml` na raiz — blueprint pronto)
+- **MySQL** → Aiven (plano free) ou TiDB Cloud Serverless
+
+Em produção o schema do banco é criado via **migrations** (`npm run migrate`, executado automaticamente no build do Render). O `sequelize.sync()` só roda em desenvolvimento. Para MySQL gerenciado, ative `DB_SSL=true` (TLS obrigatório).
+
+Variáveis por serviço:
+
+| Serviço | Variáveis |
+| --- | --- |
+| Vercel | `VITE_API_URL` = URL do backend no Render + `/api` |
+| Render | `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD` (do Aiven/TiDB), `DB_SSL=true`, `JWT_SECRET`, `FRONTEND_URL` = URL da Vercel |
+
 ## Estrutura
 
 ```
