@@ -9,6 +9,7 @@ router.use(auth);
 
 router.post('/', activityRules, validate, controller.create);
 router.get('/', controller.list);
+router.get('/:id', controller.show);
 router.put('/:id', activityRules, validate, controller.update);
 router.delete('/:id', controller.remove);
 
