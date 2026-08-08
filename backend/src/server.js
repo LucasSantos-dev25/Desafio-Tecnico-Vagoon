@@ -26,8 +26,14 @@ async function connectWithRetry() {
 async function start() {
   try {
     await connectWithRetry();
-    await db.sequelize.sync();
-    console.log('Banco de dados conectado e sincronizado');
+
+    if (process.env.NODE_ENV !== 'production') {
+      await db.sequelize.sync();
+      console.log('Banco de dados conectado e sincronizado (sync)');
+    } else {
+      // Em produção o schema é criado via migrations (npm run migrate)
+      console.log('Banco de dados conectado');
+    }
 
     app.listen(PORT, () => {
       console.log(`Servidor rodando na porta ${PORT}`);
